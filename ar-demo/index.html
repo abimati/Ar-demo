@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AR Quick View</title>
+  <style>body{font-family:system-ui,Segoe UI,Roboto,Arial;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#111;color:#fff}</style>
+</head>
+<body>
+  <div>
+    <h1>Open in AR</h1>
+    <p>If nothing happens, tap the button below.</p>
+    <p id="status">Detecting device…</p>
+    <p><a id="manual" href="#" style="color:#8cf;display:inline-block;margin-top:12px;">Manual AR link</a></p>
+  </div>
+
+  <script>
+  (function(){
+    // URLs — change these to your hosted files
+    var usdz = 'https://YOUR_DOMAIN/models/product.usdz'; // iOS
+    var glb = 'https://YOUR_DOMAIN/models/product.glb';   // Android (Scene Viewer)
+
+    var ua = navigator.userAgent || navigator.vendor || window.opera;
+    var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+    var status = document.getElementById('status');
+    var manual = document.getElementById('manual');
+
+    if (isIOS) {
+      status.textContent = 'iOS device detected — opening Quick Look...';
+      // Directly navigate to the .usdz file — Safari / native camera -> Quick Look will handle it.
+      manual.href = usdz;
+      // small delay to show message then navigate
+      setTimeout(function(){ window.location.href = usdz; }, 350);
+      return;
+    }
+
+    // Android path: use Scene Viewer intent (preferred)
+    status.textContent = 'Android device detected — launching Scene Viewer...';
+    var sceneUrl = encodeURIComponent(glb);
+    var intent = 'intent://arvr.google.com/scene-viewer/1.0?file=' + sceneUrl + '&title=Product#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end';
+    // set manual fallback and try to open intent
+    manual.href = glb;
+    setTimeout(function(){
+      window.location.href = intent;
+      // If intent fails it often falls back to the browser which will try to open the GLB page.
+    }, 350);
+  })();
+  </script>
+</body>
+</html>
